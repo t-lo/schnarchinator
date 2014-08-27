@@ -16,4 +16,4 @@ set ytics add ("nuckelt" 3)
 set format x "%H:%M"
 set grid
 set key left
-plot 'log.dat' using 1:2 t ""
+plot 'plot.dat' using 1:2 t ""

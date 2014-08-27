@@ -1,6 +1,7 @@
 #!/bin/bash
 
 logfile="log.dat"
+plotdat="plot.dat"
 
 function write_html() {
     echo -en '\r\n'
@@ -46,6 +47,7 @@ function write_html() {
 }
 
 function update_plot() {
+    tail -25 "$logfile" > "$plotdat"
     gnuplot plot.gnu 
 }
 
@@ -73,8 +75,6 @@ function add_log() {
 #
 # MAIN
 #
-
-set -x
 
 case `basename $0` in
     schlaeft*) add_log "1";;
