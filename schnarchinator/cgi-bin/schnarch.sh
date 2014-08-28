@@ -1,10 +1,14 @@
 #!/bin/bash
 
-logfile="log.dat"
-plotdat="plot.dat"
+logfile="../log.dat"
+plot_short="../plot_short.dat"
+plot_long="../plot_long.dat"
+
+num_samples_short=10
+num_samples_long=50
 
 function write_html() {
-    echo -en '\r\n'
+    echo -en 'content-type:text/html; charset=utf-8\r\n\r\n'
     echo '
         <html>
         <head>
@@ -13,6 +17,7 @@ function write_html() {
 
         </head>
         <body>
+	<center>
 
         <div class="titlebar" height="15%">
             <h1 style="margin-left: 5pt;float:left;">Schnarch Tracker</h1>
@@ -23,10 +28,10 @@ function write_html() {
         </div> 
 
             <br clear="all"/>
+                <h1 class="itemheader">Babystatus</h1>
+            <br clear="all"/>
 
         <table style="margin-top:5pt; border:none;"> <tr>
-            <td style="padding:5pt; vertical-align:top;">
-                <h1 class="itemheader">Babystatus</h1> </td>
             <td style="padding:5pt; vertical-align:top;">
                 <form action="schlaeft" method="get" > 
                     <button class="button" type="submit">
@@ -41,18 +46,21 @@ function write_html() {
                         nuckelt </button> </form></td>
         </tr></table>
 
+	</center>
         <br clear="all" />'
         
-        echo "<img src=\"../history.png?$RANDOM\" /></body></html>"
+        echo "<img src=\"../history_short.png?$RANDOM\" /><br clear=\"all\"><hr width=\"30%\">"
+        echo "<img src=\"../history_long.png?$RANDOM\" /></body></html>"
 }
 
 function update_plot() {
-    tail -25 "$logfile" > "$plotdat"
-    gnuplot plot.gnu 
+    tail -$num_samples_long "$logfile" > "$plot_long"
+    tail -$num_samples_short "$plot_long" > "$plot_short"
+    ( cd .. && gnuplot plot_short.gnu >&2 && gnuplot plot_long.gnu >&2 )
 }
 
 function redirect() {
-    echo -en '\r\n'
+    echo -en 'content-type:text/html; charset=utf-8\r\n\r\n'
     echo '
         <html>
         <head>

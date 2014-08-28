@@ -1,4 +1,4 @@
-body { background-color: #99ffff; }
+body { background-color: #99ffff; text-align:center; }
 
 * { font-family: sans-serif; }
 pre { font-family: monospace; }
@@ -18,13 +18,13 @@ td { margin:0pt; padding:0pt; border:none; }
 }
 
 .itemheader { font-size:40pt; font-weight:normal;
-    margin-left:5pt; margin-top:2pt; float:left; }
+    margin-left:5pt; margin-top:20pt; }
 
 .button { 
     background:#cff; border: 1px solid #c3f; 
-    padding:2pt; padding-left:4pt; padding-right:4pt; margin: 0pt;
+    padding-left:4pt; padding-right:4pt; padding-top:20pt; padding-bottom:20pt; margin: 0pt;
     border-radius: 5pt 5pt 5pt 5pt;
     box-shadow: 1pt 1pt 1pt #888;
     text-decoration:none; 
-    font:40pt sans-serif; font-variant: small-caps;
+    font:63pt sans-serif; font-variant: small-caps;
     color:#c3f; }
