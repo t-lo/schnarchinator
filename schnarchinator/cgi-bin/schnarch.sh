@@ -2,10 +2,12 @@
 
 logfile="../log.dat"
 plot_short="../plot_short.dat"
+plot_med="../plot_med.dat"
 plot_long="../plot_long.dat"
 
-num_samples_short=10
-num_samples_long=50
+num_samples_short=20
+num_samples_med=100
+num_samples_long=1000
 
 function write_html() {
     echo -en 'content-type:text/html; charset=utf-8\r\n\r\n'
@@ -50,13 +52,8 @@ function write_html() {
         <br clear="all" />'
         
         echo "<img src=\"../history_short.png?$RANDOM\" /><br clear=\"all\"><hr width=\"30%\">"
+        echo "<img src=\"../history_med.png?$RANDOM\" /><br clear=\"all\"><hr width=\"30%\">"
         echo "<img src=\"../history_long.png?$RANDOM\" /></body></html>"
-}
-
-function update_plot() {
-    tail -$num_samples_long "$logfile" > "$plot_long"
-    tail -$num_samples_short "$plot_long" > "$plot_short"
-    ( cd .. && gnuplot plot_short.gnu >&2 && gnuplot plot_long.gnu >&2 )
 }
 
 function redirect() {
@@ -72,11 +69,18 @@ function redirect() {
 
 function add_log() {
     local what="$1"
+    local last_state=`tail -1 $logfile | cut -d " " -f2`
     local ts="`date +%D-%H:%M:%S`"
 
+    echo "$ts $last_state" >> "$logfile"
     echo "$ts $what" >> "$logfile"
 
-    update_plot
+    # update plots
+    tail -$num_samples_long "$logfile" > "$plot_long"
+    tail -$num_samples_med "$logfile" > "$plot_med"
+    tail -$num_samples_short "$plot_long" > "$plot_short"
+    ( cd ..; gnuplot plot_short.gnu >&2; gnuplot plot_med.gnu >&2; gnuplot plot_long.gnu >&2 )
+
     redirect
 }
 

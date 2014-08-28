@@ -1,7 +1,7 @@
 set terminal png size 900,300 enhanced
-set output 'history_long.png'
+set output 'history_med.png'
 
-set title "Letzte 500 Samples"
+set title "Letzte 50 Samples"
 set style data fsteps
 set xlabel "Zeit"
 set timefmt "%m/%d/%y-%H:%M:%S"
