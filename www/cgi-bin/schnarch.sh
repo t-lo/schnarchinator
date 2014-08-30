@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# nachtragen: 16:50 - 17:04 nuckeln
+
 logfile="../log.dat"
 plot_short="../plot_short.dat"
 plot_med="../plot_med.dat"
@@ -50,11 +52,17 @@ function write_html() {
 
 	</center>
         <br clear="all" />'
+    cat << EOF
+        <img src="../today.png?$RANDOM" /><br clear="all"><hr width="30%">
+        <img src="../yesterday.png?$RANDOM\" /><br clear="all"><hr width="30%">
+        <img src="../before_yd.png?$RANDOM\" /><br clear="all"><hr width="30%">
         
-        echo "<img src=\"../history_short.png?$RANDOM\" /><br clear=\"all\"><hr width=\"30%\">"
-        echo "<img src=\"../history_med.png?$RANDOM\" /><br clear=\"all\"><hr width=\"30%\">"
-        echo "<img src=\"../history_long.png?$RANDOM\" /></body></html>"
+        <img src="../week.png?$RANDOM\" /><br clear="all"><hr width="30%">
+        <img src="../month.png?$RANDOM\" />
+        </body></html> 
+EOF
 }
+# ----
 
 function redirect() {
     echo -en 'content-type:text/html; charset=utf-8\r\n\r\n'
@@ -66,6 +74,64 @@ function redirect() {
         </html>
         '
 }
+# ----
+
+function plot() {
+    local from="$1"
+    local to="$2"
+    local plot_name="$3"
+    local desc="$4"
+
+    local plot_cfg=`mktemp`
+
+    cat >"$plot_cfg" << EOF
+    set terminal png size 900,300 enhanced
+    set output '$plot_name.png'
+
+    set title "$desc"
+    set style data fsteps
+    set xlabel "Zeit"
+    set xdata time
+    set timefmt "%m/%d/%y-%H:%M:%S"
+    set xrange [ "$from" : "$to" ]
+    set yrange [ 0 : 4 ]
+    set ylabel "Schnarchlevel"
+    set ytics 0,1
+    set format y ""
+    set ytics add ("schlaeft" 1)
+    set ytics add ("wach" 2)
+    set ytics add ("nuckelt" 3)
+    set format x "%a %d\\n%H:%M"
+    set grid
+    set key left
+    plot 'log.dat' using 1:2 index 0 t "" with lines
+EOF
+
+    gnuplot "$plot_cfg"
+    rm "$plot_cfg"
+}
+# ----
+
+function generate_plots() {
+    local today="`date +%D-%H:%M:%S -d 0`"
+    local tomorrow="`date +%D-%H:%M:%S -d \"+1day 0\"`"
+    local yesterday="`date +%D-%H:%M:%S -d \"-1day 0\"`"
+    local before_yd="`date +%D-%H:%M:%S -d \"-2day 0\"`"
+
+    local last_week="`date +%D-%H:%M:%S -d \"-7day 0\"`"
+    local last_month="`date +%D-%H:%M:%S -d \"-30day 0\"`"
+
+
+    (   cd ..;
+        plot "$today" "$tomorrow" "today" "Heute"
+        plot "$yesterday" "$today" "yesterday" "Gestern"
+        plot "$before_yd" "$yesterday" "before_yd" "Vorgestern"
+        plot "$last_week" "$tomorrow" "week" "Letzte Woche"
+        plot "$last_month" "$tomorrow" "month" "Letzter Monat"
+    )
+
+}
+# ----
 
 function add_log() {
     local what="$1"
@@ -77,14 +143,11 @@ function add_log() {
         echo "$ts $what" >> "$logfile"
     fi
 
-    # update plots
-    tail -$num_samples_long "$logfile" > "$plot_long"
-    tail -$num_samples_med "$plot_long" > "$plot_med"
-    tail -$num_samples_short "$plot_med" > "$plot_short"
-    ( cd ..; gnuplot plot_short.gnu >&2; gnuplot plot_med.gnu >&2; gnuplot plot_long.gnu >&2 )
+    generate_plots
 
     redirect
 }
+# ----
 
 #
 # MAIN
@@ -97,3 +160,4 @@ case `basename $0` in
     *)         write_html;;
 esac
 
+generate_plots

@@ -1,4 +1,5 @@
 *.dat
+*.swp
 *.png
 .ht*
 *.crt
