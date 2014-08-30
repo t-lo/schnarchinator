@@ -21,13 +21,13 @@ function write_html() {
 
     echo -en 'content-type:text/html; charset=utf-8\r\n\r\n'
     cat << EOF
-        <html>
-        <head>
+<html>
+    <head>
 
         <link rel="stylesheet" type="text/css" href="../index.css">
 
-        </head>
-        <body>
+    </head>
+    <body>
 	<center>
 
         <div class="titlebar" height="15%">
@@ -42,20 +42,19 @@ function write_html() {
 
         <table style="margin-top:5pt; border:none;"> <tr>
             <td style="padding:5pt; vertical-align:top;">
-                <form action="schnarch.sh" method="get" > 
+                <form action="schnarch.sh" method="post" > 
                     <button class="button" name="sleep" type="submit">
                         schl&auml;ft </button> </form></td>
             <td style="padding:5pt; vertical-align:top;">
-                <form action="schnarch.sh" method="get" > 
+                <form action="schnarch.sh" method="post" > 
                     <button class="button" name="awake" type="submit"> 
                         ist wach </button> </form></td>
             <td style="padding:5pt; vertical-align:top;">
-                <form action="schnarch.sh" method="get" > 
+                <form action="schnarch.sh" method="post" > 
                     <button class="button" name="feed" type="submit">
                         nuckelt </button> </form></td>
         </tr></table>
 
-	</center>
         <br clear="all" />'
         <img src="../today.png?$RANDOM" /><br clear="all"><hr width="30%">
         <img src="../yesterday.png?$RANDOM\" /><br clear="all"><hr width="30%">
@@ -63,7 +62,8 @@ function write_html() {
         
         <img src="../week.png?$RANDOM\" /><br clear="all"><hr width="30%">
         <img src="../month.png?$RANDOM\" />
-        </body></html> 
+	</center>
+</body></html> 
 EOF
 }
 # ----
@@ -155,9 +155,13 @@ function add_log() {
 # MAIN
 #
 
-case "$QUERY_STRING" in
-    sleep*) add_log "1";;
-    awake*) add_log "2";;
-    feed*)  add_log "3";;
-    *)      write_html;;
-esac
+if [ "$REQUEST_METHOD" = "POST" ] ; then
+    data="$(</dev/stdin)"
+    case "$data" in
+        sleep*) add_log "1";;
+        awake*) add_log "2";;
+        feed*)  add_log "3";;
+    esac
+else
+    write_html
+fi
