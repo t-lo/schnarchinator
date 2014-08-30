@@ -11,9 +11,11 @@ num_samples_long=2000
 
 function write_html() {
 
-    local curr_state=`tail -1 $logfile | cut -d " " -f2`
+    local curr_state=`tail -1 $logfile`
+    local state_num=`echo $curr_state | cut -d " " -f2`
+    local state_ts=`echo $curr_state | cut -d " " -f1 | cut -d "-" -f 2`
     local state=""
-    case $curr_state in
+    case $state_num in
         1) state="schl&auml;ft";;
         2) state="wach";;
         3) state="nuckelt";;
@@ -31,7 +33,7 @@ function write_html() {
 	<center>
 
         <div class="titlebar" height="15%">
-            <h1 style="margin-left: 5pt;float:left;">Babystatus: $state</h1>
+            <h1 style="margin-left: 5pt;float:left;">Babystatus: $state seit $state_ts</h1>
             <h2 style="margin-left:7pt; padding-top:7pt; padding-right:10pt;
                        font-size:medium;float:right;">
                Version 0.1</h2>
