@@ -5,3 +5,5 @@ add cgi-bin/ subdir to CGI script directories of web server.
 
 Requires bash and gnuplot.
 
+![Schnarchinator Screenshot](screenshot.png "Action shot")
+
