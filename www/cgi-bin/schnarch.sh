@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# nachtragen: 16:50 - 17:04 nuckeln
-
 logfile="../log.dat"
 plot_short="../plot_short.dat"
 plot_med="../plot_med.dat"
@@ -12,8 +10,17 @@ num_samples_med=200
 num_samples_long=2000
 
 function write_html() {
+
+    local curr_state=`tail -1 $logfile | cut -d " " -f2`
+    local state=""
+    case $curr_state in
+        1) state="schl&auml;ft";;
+        2) state="wach";;
+        3) state="nuckelt";;
+    esac
+
     echo -en 'content-type:text/html; charset=utf-8\r\n\r\n'
-    echo '
+    cat << EOF
         <html>
         <head>
 
@@ -24,35 +31,32 @@ function write_html() {
 	<center>
 
         <div class="titlebar" height="15%">
-            <h1 style="margin-left: 5pt;float:left;">Schnarch Tracker</h1>
+            <h1 style="margin-left: 5pt;float:left;">Babystatus: $state</h1>
             <h2 style="margin-left:7pt; padding-top:7pt; padding-right:10pt;
                        font-size:medium;float:right;">
                Version 0.1</h2>
             <br clear="all"/>
         </div> 
 
-            <br clear="all"/>
-                <h1 class="itemheader">Babystatus</h1>
-            <br clear="all"/>
+        <br clear="all"/>
 
         <table style="margin-top:5pt; border:none;"> <tr>
             <td style="padding:5pt; vertical-align:top;">
-                <form action="schlaeft" method="get" > 
-                    <button class="button" type="submit">
+                <form action="schnarch.sh" method="get" > 
+                    <button class="button" name="sleep" type="submit">
                         schl&auml;ft </button> </form></td>
             <td style="padding:5pt; vertical-align:top;">
-                <form action="wach" method="get" > 
-                    <button class="button" type="submit"> 
+                <form action="schnarch.sh" method="get" > 
+                    <button class="button" name="awake" type="submit"> 
                         ist wach </button> </form></td>
             <td style="padding:5pt; vertical-align:top;">
-                <form action="nuckelt" method="get" > 
-                    <button class="button" type="submit">
+                <form action="schnarch.sh" method="get" > 
+                    <button class="button" name="feed" type="submit">
                         nuckelt </button> </form></td>
         </tr></table>
 
 	</center>
         <br clear="all" />'
-    cat << EOF
         <img src="../today.png?$RANDOM" /><br clear="all"><hr width="30%">
         <img src="../yesterday.png?$RANDOM\" /><br clear="all"><hr width="30%">
         <img src="../before_yd.png?$RANDOM\" /><br clear="all"><hr width="30%">
@@ -121,7 +125,6 @@ function generate_plots() {
     local last_week="`date +%D-%H:%M:%S -d \"-7day 0\"`"
     local last_month="`date +%D-%H:%M:%S -d \"-30day 0\"`"
 
-
     (   cd ..;
         plot "$today" "$tomorrow" "today" "Heute"
         plot "$yesterday" "$today" "yesterday" "Gestern"
@@ -144,7 +147,6 @@ function add_log() {
     fi
 
     generate_plots
-
     redirect
 }
 # ----
@@ -153,11 +155,9 @@ function add_log() {
 # MAIN
 #
 
-case `basename $0` in
-    schlaeft*) add_log "1";;
-    wach*)     add_log "2";;
-    nuckelt*)  add_log "3";;
-    *)         write_html;;
+case "$QUERY_STRING" in
+    sleep*) add_log "1";;
+    awake*) add_log "2";;
+    feed*)  add_log "3";;
+    *)      write_html;;
 esac
-
-generate_plots
