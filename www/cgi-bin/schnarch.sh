@@ -10,10 +10,17 @@ num_samples_med=200
 num_samples_long=2000
 
 function write_html() {
-
     local curr_state=`tail -1 $logfile`
     local state_num=`echo $curr_state | cut -d " " -f2`
     local state_ts=`echo $curr_state | cut -d " " -f1 | cut -d "-" -f 2`
+
+    local state_date=`echo $state_ts | sed 's/\(..\).\(..\).\(..\).\(..\).\(..\).\(..\)/20\3\1\2 \4\5/'`
+    local state_sec=$(date +%s -d "$state_date")
+    local state_diff=$((`date +%s` - $state_sec))
+    local state_hr=$((state_diff / 60 / 60))
+    local state_min=$((state_diff / 60 - $state_hr * 60))
+    local state_sec=$((state_diff % 60))
+
     local state=""
     case $state_num in
         1) state="schl&auml;ft";;
@@ -33,11 +40,9 @@ function write_html() {
 	<center>
 
         <div class="titlebar" height="15%">
-            <h1 style="margin-left: 5pt;float:left;">Babystatus: $state seit $state_ts</h1>
-            <h2 style="margin-left:7pt; padding-top:7pt; padding-right:10pt;
-                       font-size:medium;float:right;">
-               Version 0.1</h2>
-            <br clear="all"/>
+            <h1 style="margin-left: 5pt;">Babystatus: $state
+            </h1>
+            <h2> (seit $state_ts - $state_hr h, $state_min min, $state_sec s)</h2>
         </div> 
 
         <br clear="all"/>
