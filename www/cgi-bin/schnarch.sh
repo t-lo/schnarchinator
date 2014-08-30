@@ -5,9 +5,9 @@ plot_short="../plot_short.dat"
 plot_med="../plot_med.dat"
 plot_long="../plot_long.dat"
 
-num_samples_short=20
-num_samples_med=100
-num_samples_long=1000
+num_samples_short=80
+num_samples_med=200
+num_samples_long=2000
 
 function write_html() {
     echo -en 'content-type:text/html; charset=utf-8\r\n\r\n'
@@ -72,13 +72,15 @@ function add_log() {
     local last_state=`tail -1 $logfile | cut -d " " -f2`
     local ts="`date +%D-%H:%M:%S`"
 
-    echo "$ts $last_state" >> "$logfile"
-    echo "$ts $what" >> "$logfile"
+    if [ "$what" != "$last_state" ]; then
+        echo "$ts $last_state" >> "$logfile"
+        echo "$ts $what" >> "$logfile"
+    fi
 
     # update plots
     tail -$num_samples_long "$logfile" > "$plot_long"
-    tail -$num_samples_med "$logfile" > "$plot_med"
-    tail -$num_samples_short "$plot_long" > "$plot_short"
+    tail -$num_samples_med "$plot_long" > "$plot_med"
+    tail -$num_samples_short "$plot_med" > "$plot_short"
     ( cd ..; gnuplot plot_short.gnu >&2; gnuplot plot_med.gnu >&2; gnuplot plot_long.gnu >&2 )
 
     redirect

@@ -1,2 +1,7 @@
 *.dat
 *.png
+.ht*
+*.crt
+*.csr
+*.sslconf
+*.key
