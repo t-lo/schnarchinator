@@ -1,6 +1,7 @@
 #!/bin/bash
 
 logfile="../log.dat"
+curr_stat_file="../curr.dat"
 plot_short="../plot_short.dat"
 plot_med="../plot_med.dat"
 plot_long="../plot_long.dat"
@@ -10,7 +11,7 @@ num_samples_med=200
 num_samples_long=2000
 
 function write_html() {
-    local curr_state=`tail -1 $logfile`
+    local curr_state="$1"
     local state_num=`echo $curr_state | cut -d " " -f2`
     local state_ts=`echo $curr_state | cut -d " " -f1 | cut -d "-" -f 2`
 
@@ -137,7 +138,7 @@ function plot() {
     set format x "%a %d\\n%H:%M"
     set grid
     set key left
-    plot 'log.dat' using 1:2 index 0 t "" with lines
+    plot 'log.dat' using 1:2 index 0 t "" linecolor rgb "red" with lines, 'curr.dat' using 1:2 t "" linecolor rgb "red" with lines
 EOF
 
     gnuplot "$plot_cfg"
@@ -167,8 +168,8 @@ function generate_plots() {
 
 function add_log() {
     local what="$1"
-    local last_state=`tail -1 $logfile | cut -d " " -f2`
-    local ts="`date +%D-%H:%M:%S`"
+    local ts="$2"
+    local last_state="$3"
 
     if [ "$what" != "$last_state" ]; then
         echo "$ts $last_state" >> "$logfile"
@@ -184,13 +185,24 @@ function add_log() {
 # MAIN
 #
 
+
+ts="`date +%D-%H:%M:%S`"
+last_line=`tail -1 $logfile`
+last_state=`echo $last_line | cut -d " " -f2`
+
 if [ "$REQUEST_METHOD" = "POST" ] ; then
     data="$(</dev/stdin)"
     case "$data" in
-        sleep*) add_log "1";;
-        awake*) add_log "2";;
-        feed*)  add_log "3";;
+        sleep*) add_log "1" "$ts" "$last_state";;
+        awake*) add_log "2" "$ts" "$last_state";;
+        feed*)  add_log "3" "$ts" "$last_state";;
     esac
 else
-    write_html
+    today="`date +%D-%H:%M:%S -d 0`"
+    tomorrow="`date +%D-%H:%M:%S -d \"+1day 0\"`"
+    echo "$last_line" > "$curr_stat_file"
+    echo "$ts $last_state" >> "$curr_stat_file"
+
+    ( cd ..; plot "$today" "$tomorrow" "today" "Heute" )
+    write_html "$last_line"
 fi
