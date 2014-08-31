@@ -42,8 +42,32 @@ function write_html() {
         <div class="titlebar" height="15%">
             <h1 style="margin-left: 5pt;">Babystatus: $state
             </h1>
-            <h2> (seit $state_ts - $state_hr h, $state_min min, $state_sec s)</h2>
+            <h2 id="clock"></h2>
         </div> 
+
+        <script type="text/javascript">
+        var h=$state_hr
+        var m=$state_min
+        var s=$state_sec
+
+        function tick() {
+            s = s+1;
+            m = m + parseInt(s/60);
+            h = h + parseInt(m/60);
+
+            s = s % 60;
+            m = m % 60;
+
+            var _s = (s < 10 ? "0" : "") + s
+            var _m = (m < 10 ? "0" : "") + m
+
+            var t = "(seit $state_ts - " + h + " h, " + _m + " min, " + _s + " s)"
+            document.getElementById("clock").innerText = t
+        }
+        tick()
+        setInterval('tick()', 1000)
+        </script>
+
 
         <br clear="all"/>
 
