@@ -14,8 +14,9 @@ function write_html() {
     local curr_state="$1"
     local state_num=`echo $curr_state | cut -d " " -f 2`
 
-    local state_stamp=`echo $curr_state | cut -d " " -f 1`
-    local state_time=`echo $state_stamp | cut -d "-" -f 2`
+    local state_date=`echo $curr_state | cut -d " " -f 1 | sed 's/\(..\).\(..\).\(..\).\(..\).\(..\).\(..\)/20\3\1\2 \4\5/'`
+    local state_sec=$(date +%s -d "$state_date")
+    local state_time=`echo $curr_state | cut -d " " -f 1 | cut -d "-" -f 2`
 
 
     local state=""
@@ -43,7 +44,7 @@ function write_html() {
         </div> 
 
         <script type="text/javascript">
-        var start = new Date('$state_stamp').getTime()
+        var start = new Date($state_sec * 1000).getTime()
 
         function tick() {
             var now = new Date().getTime()
