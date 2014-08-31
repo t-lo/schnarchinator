@@ -12,15 +12,11 @@ num_samples_long=2000
 
 function write_html() {
     local curr_state="$1"
-    local state_num=`echo $curr_state | cut -d " " -f2`
-    local state_ts=`echo $curr_state | cut -d " " -f1 | cut -d "-" -f 2`
+    local state_num=`echo $curr_state | cut -d " " -f 2`
 
-    local state_date=`echo $state_ts | sed 's/\(..\).\(..\).\(..\).\(..\).\(..\).\(..\)/20\3\1\2 \4\5/'`
-    local state_sec=$(date +%s -d "$state_date")
-    local state_diff=$((`date +%s` - $state_sec))
-    local state_hr=$((state_diff / 60 / 60))
-    local state_min=$((state_diff / 60 - $state_hr * 60))
-    local state_sec=$((state_diff % 60))
+    local state_stamp=`echo $curr_state | cut -d " " -f 1`
+    local state_time=`echo $state_stamp | cut -d "-" -f 2`
+
 
     local state=""
     case $state_num in
@@ -47,14 +43,14 @@ function write_html() {
         </div> 
 
         <script type="text/javascript">
-        var h=$state_hr
-        var m=$state_min
-        var s=$state_sec
+        var start = new Date('$state_stamp').getTime()
 
         function tick() {
-            s = s+1;
-            m = m + parseInt(s/60);
-            h = h + parseInt(m/60);
+            var now = new Date().getTime()
+
+            var s = parseInt((now - start) / 1000)
+            var m = parseInt(s/60);
+            var h = parseInt(m/60);
 
             s = s % 60;
             m = m % 60;
@@ -62,7 +58,7 @@ function write_html() {
             var _s = (s < 10 ? "0" : "") + s
             var _m = (m < 10 ? "0" : "") + m
 
-            var t = "(seit $state_ts - " + h + " h, " + _m + " min, " + _s + " s)"
+            var t = "(seit $state_time - " + h + " h, " + _m + " min, " + _s + " s)"
             document.getElementById("clock").firstChild.nodeValue = t
         }
         tick()
