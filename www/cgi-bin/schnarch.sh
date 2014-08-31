@@ -86,11 +86,11 @@ function write_html() {
 
         <br clear="all" />'
         <img src="../today.png?$RANDOM" /><br clear="all"><hr width="30%">
-        <img src="../yesterday.png?$RANDOM\" /><br clear="all"><hr width="30%">
-        <img src="../before_yd.png?$RANDOM\" /><br clear="all"><hr width="30%">
+        <img src="../yesterday.png?$RANDOM" /><br clear="all"><hr width="30%">
+        <img src="../before_yd.png?$RANDOM" /><br clear="all"><hr width="30%">
         
-        <img src="../week.png?$RANDOM\" /><br clear="all"><hr width="30%">
-        <img src="../month.png?$RANDOM\" />
+        <img src="../week.png?$RANDOM" /><br clear="all"><hr width="30%">
+        <img src="../month.png?$RANDOM" />
 	</center>
 </body></html> 
 EOF
