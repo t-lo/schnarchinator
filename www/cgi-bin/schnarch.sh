@@ -42,7 +42,7 @@ function write_html() {
         <div class="titlebar" height="15%">
             <h1 style="margin-left: 5pt;">Babystatus: $state
             </h1>
-            <h2 id="clock"></h2>
+            <span id="clock">&nbsp;</span>
         </div> 
 
         <script type="text/javascript">
@@ -62,7 +62,7 @@ function write_html() {
             var _m = (m < 10 ? "0" : "") + m
 
             var t = "(seit $state_ts - " + h + " h, " + _m + " min, " + _s + " s)"
-            document.getElementById("clock").innerText = t
+            document.getElementById("clock").firstChild.nodeValue = t
         }
         tick()
         setInterval('tick()', 1000)
@@ -125,12 +125,10 @@ function plot() {
 
     set title "$desc"
     set style data fsteps
-    set xlabel "Zeit"
     set xdata time
     set timefmt "%m/%d/%y-%H:%M:%S"
     set xrange [ "$from" : "$to" ]
     set yrange [ 0 : 4 ]
-    set ylabel "Schnarchlevel"
     set ytics 0,1
     set format y ""
     set ytics add ("schlaeft" 1)
