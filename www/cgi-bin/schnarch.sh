@@ -115,6 +115,13 @@ function plot() {
     local plot_name="$3"
     local desc="$4"
 
+    local xtics=""
+    local mxtics=""
+    [    "$plot_name" = "today" -o "$plot_name" = "yesterday" \
+      -o "$plot_name" = "before_yd" ] && {
+        xtics="set xtics 0,7200"
+      }
+
     local plot_cfg=`mktemp`
 
     cat >"$plot_cfg" << EOF
@@ -132,8 +139,10 @@ function plot() {
     set ytics add ("schlaeft" 1)
     set ytics add ("wach" 2)
     set ytics add ("nuckelt" 3)
-    set format x "%a %d\\n%H:%M"
-    set grid
+    set format x "%H:%M\\n%a %d"
+    $xtics
+    set mxtics 2
+    set grid xtics mxtics ytics
     set key left
     plot 'log.dat' using 1:2 index 0 t "" linecolor rgb "red" with lines, 'curr.dat' using 1:2 t "" linecolor rgb "red" with lines
 EOF
