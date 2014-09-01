@@ -144,7 +144,10 @@ function plot() {
     set mxtics 2
     set grid xtics mxtics ytics
     set key left
-    plot 'log.dat' using 1:2 index 0 t "" linecolor rgb "red" with lines, 'curr.dat' using 1:2 t "" linecolor rgb "red" with lines
+    plot 'log.dat' using 1:2 index 0 t "" \
+        linecolor rgb "blue" with lines, \
+    'curr.dat' using 1:2 t "" \
+        linecolor rgb "blue" with lines
 EOF
 
     gnuplot "$plot_cfg"
