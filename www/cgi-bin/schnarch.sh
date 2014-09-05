@@ -257,7 +257,7 @@ function post_log() {
         oldstate=$2
     }' > $tmp
 
-    diff "$logfile" "$tmp" > "$diff_file"
+    diff --strip-trailing-cr "$logfile" "$tmp" > "$diff_file"
     mv "$tmp" "$logfile"
 
     generate_plots
