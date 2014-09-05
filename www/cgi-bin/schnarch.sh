@@ -1,14 +1,17 @@
 #!/bin/bash
 
+# Files
+
 logfile="../log.dat"
 curr_stat_file="../curr.dat"
 plot_short="../plot_short.dat"
 plot_med="../plot_med.dat"
 plot_long="../plot_long.dat"
 
-num_samples_short=80
-num_samples_med=200
-num_samples_long=2000
+function edit_diff() {
+    local ts=`echo "$1" | sed 's/\//_/g'`
+    echo "../edit-${ts}.diff"
+}
 
 function write_html() {
     local curr_state="$1"
@@ -30,9 +33,7 @@ function write_html() {
     cat << EOF
 <html>
     <head>
-
         <link rel="stylesheet" type="text/css" href="../index.css">
-
     </head>
     <body>
 	<center>
@@ -84,13 +85,19 @@ function write_html() {
                         nuckelt </button> </form></td>
         </tr></table>
 
-        <br clear="all" />'
+        <br clear="all" />
         <img src="../today.png?$RANDOM" /><br clear="all"><hr width="30%">
         <img src="../yesterday.png?$RANDOM" /><br clear="all"><hr width="30%">
         <img src="../before_yd.png?$RANDOM" /><br clear="all"><hr width="30%">
         
         <img src="../week.png?$RANDOM" /><br clear="all"><hr width="30%">
         <img src="../month.png?$RANDOM" />
+
+        <br clear="all" />
+        <hr width="50%">
+        <form action="schnarch.sh" method="post" > 
+            <button class="button" name="edit" type="submit">
+                Daten editieren</button> </form>
 	</center>
 </body></html> 
 EOF
@@ -181,9 +188,77 @@ function add_log() {
     local last_state="$3"
 
     if [ "$what" != "$last_state" ]; then
+        co "$logfile"
         echo "$ts $last_state" >> "$logfile"
         echo "$ts $what" >> "$logfile"
+        ci "$logfile"
     fi
+
+    generate_plots
+    redirect
+}
+# ----
+
+function edit_log() {
+    echo -en 'content-type:text/html; charset=utf-8\r\n\r\n'
+    echo '
+    <html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="../index.css">
+    </head>
+    <body>
+	<center>
+        <div class="titlebar" height="15%">
+            <h1 style="margin-left: 5pt;">Status log editor </h1>
+        </div> 
+
+        <br clear="all"/>
+
+        <form action="schnarch.sh" method="get" > 
+            <button class="button" type="submit"> Abbrechen </button>
+        </form>
+        <br clear="all" />
+        <hr width="50%" />
+        <br clear="all" />
+        <span>Event types: 1 - schl&auml;ft, 2 - wach, 3 - nuckelt <br />
+              Timestamp format: mm/dd/yy-hh:mm:ss
+        </span>
+        <br clear="all" />
+        <form action="schnarch.sh" method="post" > 
+            <textarea rows="100" cols="40" name="post">'
+
+    awk '1 == NR % 2' "$logfile"
+   
+    echo '  </textarea>
+            <br clear="all" />
+            <span>Event types: 1 - schl&auml;ft, 2 - wach, 3 - nuckelt <br />
+                  Timestamp format: mm/dd/yy-hh:mm:ss
+            <br clear="all" />
+            <button class="button" type="submit">
+                Speichern </button> </form>
+    </center>
+    </body></html>'
+}
+# ----
+
+function urldecode(){
+    echo -e "`sed 's/+/ /g; s/%/\\\x/g'`"
+}
+# ----
+
+function post_log() {
+    local diff_file=`edit_diff "$1"`
+    local tmp=`mktemp`
+
+    echo "$data" | cut -d '=' -f 2 | urldecode | awk '{
+        if (NF != 2) next
+        if (oldstate) print $1 " " oldstate 
+        print $1 " " $2
+        oldstate=$2
+    }' > $tmp
+
+    diff "$logfile" "$tmp" > "$diff_file"
+    mv "$tmp" "$logfile"
 
     generate_plots
     redirect
@@ -193,18 +268,21 @@ function add_log() {
 #
 # MAIN
 #
-
+cd `dirname $0`
 
 ts="`date +%D-%H:%M:%S`"
 last_line=`tail -1 $logfile`
 last_state=`echo $last_line | cut -d " " -f2`
 
-if [ "$REQUEST_METHOD" = "POST" ] ; then
-    data="$(</dev/stdin)"
-    case "$data" in
-        sleep*) add_log "1" "$ts" "$last_state";;
-        awake*) add_log "2" "$ts" "$last_state";;
-        feed*)  add_log "3" "$ts" "$last_state";;
+if [ "$REQUEST_METHOD" = "POST" ] && [ "$CONTENT_LENGTH" -gt 0 ] ; then
+    read -n $CONTENT_LENGTH -r data
+    cmd=`echo "$data" | cut -d '=' -f 1`
+    case "$cmd" in
+        sleep) add_log "1" "$ts" "$last_state";;
+        awake) add_log "2" "$ts" "$last_state";;
+        feed)  add_log "3" "$ts" "$last_state";;
+        edit)  edit_log;;
+        post)  post_log "$ts";;
     esac
 else
     today="`date +%D-%H:%M:%S -d 0`"

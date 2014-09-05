@@ -6,3 +6,4 @@
 *.csr
 *.sslconf
 *.key
+*.diff
