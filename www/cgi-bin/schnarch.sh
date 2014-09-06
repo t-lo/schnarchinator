@@ -188,10 +188,8 @@ function add_log() {
     local last_state="$3"
 
     if [ "$what" != "$last_state" ]; then
-        co "$logfile"
         echo "$ts $last_state" >> "$logfile"
         echo "$ts $what" >> "$logfile"
-        ci "$logfile"
     fi
 
     generate_plots
@@ -250,7 +248,7 @@ function post_log() {
     local diff_file=`edit_diff "$1"`
     local tmp=`mktemp`
 
-    echo "$data" | cut -d '=' -f 2 | urldecode | awk '{
+    echo "$data" | cut -d '=' -f 2 | urldecode | sed 's/\r$//' | awk '{
         if (NF != 2) next
         if (oldstate) print $1 " " oldstate 
         print $1 " " $2
