@@ -89,6 +89,10 @@ function write_html() {
         <img src="../today.png?$RANDOM" /><br clear="all"><hr width="30%">
         <img src="../yesterday.png?$RANDOM" /><br clear="all"><hr width="30%">
         <img src="../before_yd.png?$RANDOM" /><br clear="all"><hr width="30%">
+        <img src="../before_yd2.png?$RANDOM" /><br clear="all"><hr width="30%">
+        <img src="../before_yd3.png?$RANDOM" /><br clear="all"><hr width="30%">
+        <img src="../before_yd4.png?$RANDOM" /><br clear="all"><hr width="30%">
+        <img src="../before_yd5.png?$RANDOM" /><br clear="all"><hr width="30%">
         
         <img src="../week.png?$RANDOM" /><br clear="all"><hr width="30%">
         <img src="../month.png?$RANDOM" />
@@ -119,13 +123,13 @@ function redirect() {
 function plot() {
     local from="$1"
     local to="$2"
-    local plot_name="$3"
-    local desc="$4"
+    local single_day="$3"
+    local plot_name="$4"
+    local desc="$5"
 
     local xtics=""
     local mxtics=""
-    [    "$plot_name" = "today" -o "$plot_name" = "yesterday" \
-      -o "$plot_name" = "before_yd" ] && {
+    [    "$single_day" = "true" ] && {
         xtics="set xtics 0,7200"
       }
 
@@ -167,18 +171,26 @@ function generate_plots() {
     local tomorrow="`date +%D-%H:%M:%S -d \"+1day 0\"`"
     local yesterday="`date +%D-%H:%M:%S -d \"-1day 0\"`"
     local before_yd="`date +%D-%H:%M:%S -d \"-2day 0\"`"
+    local before_yd2="`date +%D-%H:%M:%S -d \"-3day 0\"`"
+    local before_yd3="`date +%D-%H:%M:%S -d \"-4day 0\"`"
+    local before_yd4="`date +%D-%H:%M:%S -d \"-5day 0\"`"
+    local before_yd5="`date +%D-%H:%M:%S -d \"-6day 0\"`"
 
     local last_week="`date +%D-%H:%M:%S -d \"-7day 0\"`"
     local last_month="`date +%D-%H:%M:%S -d \"-30day 0\"`"
 
     (   cd ..;
-        plot "$today" "$tomorrow" "today" "Heute"
-        plot "$yesterday" "$today" "yesterday" "Gestern"
-        plot "$before_yd" "$yesterday" "before_yd" "Vorgestern"
-        plot "$last_week" "$tomorrow" "week" "Letzte Woche"
-        plot "$last_month" "$tomorrow" "month" "Letzter Monat"
-    )
+        plot "$today" "$tomorrow" "true" "today" "Heute"
+        plot "$yesterday" "$today" "true" "yesterday" "Gestern"
+        plot "$before_yd" "$yesterday" "true" "before_yd" "Vorgestern"
+        plot "$before_yd2" "$before_yd" "true" "before_yd2" "`date +%a -d-3day`"
+        plot "$before_yd3" "$before_yd2" "true" "before_yd3" "`date +%a -d-4day`"
+        plot "$before_yd4" "$before_yd3" "true" "before_yd4" "`date +%a -d-5day`"
+        plot "$before_yd5" "$before_yd4" "true" "before_yd5" "`date +%a -d-6day`"
 
+        plot "$last_week" "$tomorrow" "false" "week" "Letzte Woche"
+        plot "$last_month" "$tomorrow" "false" "month" "Letzter Monat"
+    )
 }
 # ----
 
