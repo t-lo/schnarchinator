@@ -8,6 +8,9 @@ plot_short="../plot_short.dat"
 plot_med="../plot_med.dat"
 plot_long="../plot_long.dat"
 
+graph_width=900
+graph_height=300
+
 function edit_diff() {
     local ts=`echo "$1" | sed 's/\//_/g'`
     echo "../edit-${ts}.diff"
@@ -86,16 +89,37 @@ function write_html() {
         </tr></table>
 
         <br clear="all" />
-        <img src="../today.png?$RANDOM" /><br clear="all"><hr width="30%">
-        <img src="../yesterday.png?$RANDOM" /><br clear="all"><hr width="30%">
-        <img src="../before_yd.png?$RANDOM" /><br clear="all"><hr width="30%">
-        <img src="../before_yd2.png?$RANDOM" /><br clear="all"><hr width="30%">
-        <img src="../before_yd3.png?$RANDOM" /><br clear="all"><hr width="30%">
-        <img src="../before_yd4.png?$RANDOM" /><br clear="all"><hr width="30%">
-        <img src="../before_yd5.png?$RANDOM" /><br clear="all"><hr width="30%">
-        
-        <img src="../week.png?$RANDOM" /><br clear="all"><hr width="30%">
-        <img src="../month.png?$RANDOM" />
+
+        <canvas id="today" width="$graph_width" height="$graph_height" > </canvas>
+        <br /> <hr width="30%">
+        <canvas id="yesterday" width="$graph_width" height="$graph_height" ></canvas>
+        <br /> <hr width="30%">
+        <canvas id="before_yd" width="$graph_width" height="$graph_height" ></canvas>
+        <br /> <hr width="30%">
+        <canvas id="before_yd2" width="$graph_width" height="$graph_height" ></canvas>
+        <br /> <hr width="30%">
+        <canvas id="before_yd3" width="$graph_width" height="$graph_height" ></canvas>
+        <br /> <hr width="30%">
+        <canvas id="before_yd4" width="$graph_width" height="$graph_height" ></canvas>
+        <br /> <hr width="30%">
+        <canvas id="before_yd5" width="$graph_width" height="$graph_height" ></canvas>
+        <br /> <hr width="30%">
+        <canvas id="week" width="$graph_width" height="$graph_height" ></canvas>
+        <br /> <hr width="30%">
+        <canvas id="month" width="$graph_width" height="$graph_height" ></canvas>
+
+        <script type="text/javascript">
+          function load_image(name) {
+            var canvas = document.getElementById(name);
+            var ctx = canvas.getContext('2d');
+            var image = new Image();
+            image.onload = function() { ctx.drawImage(image,0,0); }
+            image.src = "../" + name + ".png?$RANDOM"
+          }
+        var il = ["today", "yesterday", "before_yd", "before_yd2",
+                  "before_yd3", "before_yd4", "before_yd5", "week", "month"]
+        for (var i in il) { load_image(il[i]) }
+        </script>
 
         <br clear="all" />
         <hr width="50%">
@@ -136,7 +160,7 @@ function plot() {
     local plot_cfg=`mktemp`
 
     cat >"$plot_cfg" << EOF
-    set terminal png size 900,300 enhanced
+    set terminal png size $graph_width,$graph_height enhanced
     set output '$plot_name.png'
 
     set title "$desc"
@@ -300,6 +324,6 @@ else
     echo "$last_line" > "$curr_stat_file"
     echo "$ts $last_state" >> "$curr_stat_file"
 
-    ( cd ..; plot "$today" "$tomorrow" "today" "Heute" )
+    ( cd ..; plot "$today" "$tomorrow" "true" "today" "Heute" )
     write_html "$last_line"
 fi
