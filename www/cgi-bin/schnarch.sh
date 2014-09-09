@@ -108,25 +108,29 @@ function write_html() {
         <br /> <hr width="30%">
         <canvas id="month" width="$graph_width" height="$graph_height" ></canvas>
 
-        <script type="text/javascript">
-          function load_image(name) {
-            var canvas = document.getElementById(name);
-            var ctx = canvas.getContext('2d');
-            var image = new Image();
-            image.onload = function() { ctx.drawImage(image,0,0); }
-            image.src = "../" + name + ".png?$RANDOM"
-          }
-        var il = ["today", "yesterday", "before_yd", "before_yd2",
-                  "before_yd3", "before_yd4", "before_yd5", "week", "month"]
-        for (var i in il) { load_image(il[i]) }
-        </script>
-
         <br clear="all" />
         <hr width="50%">
         <form action="schnarch.sh" method="post" > 
             <button class="button" name="edit" type="submit">
                 Daten editieren</button> </form>
 	</center>
+
+    <script type="text/javascript">
+      function load_image(name) {
+        var canvas = document.getElementById(name);
+        var ctx = canvas.getContext('2d');
+        var image = new Image();
+        image.onload = function() { ctx.drawImage(image,0,0); }
+        image.src = "../" + name + ".png?$RANDOM"
+      }
+      function load_images() {
+        var il = ["today", "yesterday", "before_yd", "before_yd2",
+                  "before_yd3", "before_yd4", "before_yd5", "week", "month"]
+        for (var i in il) { load_image(il[i]) }
+      }
+      setTimeout(load_images, 100)
+    </script>
+
 </body></html> 
 EOF
 }
