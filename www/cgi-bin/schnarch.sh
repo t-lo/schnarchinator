@@ -249,31 +249,28 @@ function edit_log() {
         <div class="titlebar" height="15%">
             <h1 style="margin-left: 5pt;">Status log editor </h1>
         </div> 
-
-        <br clear="all"/>
-
-        <form action="schnarch.sh" method="get" > 
+        <br clear="all" />
+        <form action="schnarch.sh" method="get" style="float:left;" >
             <button class="button" type="submit"> Abbrechen </button>
         </form>
-        <br clear="all" />
-        <hr width="50%" />
-        <br clear="all" />
-        <span>Event types: 1 - schl&auml;ft, 2 - wach, 3 - nuckelt <br />
+        <form action="schnarch.sh" method="post">
+            <button class="button" type="submit" style="float:right">
+                Speichern </button>
+            <br clear="all" />
+            <span>
+              Event types: 1 - schl&auml;ft, 2 - wach, 3 - nuckelt <br />
               Timestamp format: mm/dd/yy-hh:mm:ss
-        </span>
-        <br clear="all" />
-        <form action="schnarch.sh" method="post" > 
+            </span>
+            <br clear="all" />
             <textarea rows="100" cols="40" name="post">'
 
-    awk '1 == NR % 2' "$logfile"
+    awk '1 == NR % 2' "$logfile" | tac -
    
-    echo '  </textarea>
+    echo '  </textarea> </form>
             <br clear="all" />
             <span>Event types: 1 - schl&auml;ft, 2 - wach, 3 - nuckelt <br />
                   Timestamp format: mm/dd/yy-hh:mm:ss
-            <br clear="all" />
-            <button class="button" type="submit">
-                Speichern </button> </form>
+            </span>
     </center>
     </body></html>'
 }
@@ -288,7 +285,7 @@ function post_log() {
     local diff_file=`edit_diff "$1"`
     local tmp=`mktemp`
 
-    echo "$data" | cut -d '=' -f 2 | urldecode | sed 's/\r$//' | awk '{
+    echo "$data" | cut -d '=' -f 2 | urldecode | sed 's/\r$//' | tac - | awk '{
         if (NF != 2) next
         if (oldstate) print $1 " " oldstate 
         print $1 " " $2
